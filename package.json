@@ -1,9 +1,9 @@
 {
-  "name": "my-react-jsx",
+  "name": "project-midterm-ig342",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://localhost",
+  "homepage": "https://azazxxc147896325-beep.github.io/projectMidterm-IG342/",
   "scripts": {
     "dev": "vite",
     "build": "vite build && cp dist/index.html dist/404.html",
