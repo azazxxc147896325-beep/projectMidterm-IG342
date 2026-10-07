@@ -1,4 +1,4 @@
-import{j as m,I as g,l as q,s as i}from"./index-wOP-wpo-.js";function P({icon:t="sparkles",title:e,description:r}){return m.jsxs("div",{className:"empty-state card",children:[m.jsx("span",{children:m.jsx(g,{name:t,size:25})}),m.jsx("h3",{children:e}),m.jsx("p",{children:r})]})}const v=8,w=`
+import{j as m,I as g,l as q,s as i}from"./index-C9Z5_3Xm.js";function P({icon:t="sparkles",title:e,description:r}){return m.jsxs("div",{className:"empty-state card",children:[m.jsx("span",{children:m.jsx(g,{name:t,size:25})}),m.jsx("h3",{children:e}),m.jsx("p",{children:r})]})}const v=8,w=`
   id, author_id, content, card_theme, card_font, card_pattern, created_at, updated_at,
   author:profiles!posts_author_id_fkey(id, username, display_name, bio, avatar_url),
   likes(count), comments(count), viewer_like:likes(user_id)
