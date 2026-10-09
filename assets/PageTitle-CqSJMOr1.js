@@ -1,1 +1,0 @@
-import{j as s}from"./index-v_0qZuBN.js";function t({eyebrow:i,title:r,description:e,action:n}){return s.jsxs("div",{className:"page-title",children:[s.jsxs("div",{children:[s.jsx("span",{children:i}),s.jsx("h1",{children:r}),e&&s.jsx("p",{children:e})]}),n]})}export{t as P};
