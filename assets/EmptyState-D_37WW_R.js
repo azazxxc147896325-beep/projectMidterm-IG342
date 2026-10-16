@@ -1,0 +1,1 @@
+import{j as s,I as a}from"./index-C312MqAh.js";function i({icon:e="sparkles",title:r,description:t}){return s.jsxs("div",{className:"empty-state card",children:[s.jsx("span",{children:s.jsx(a,{name:e,size:25})}),s.jsx("h3",{children:r}),s.jsx("p",{children:t})]})}export{i as E};
