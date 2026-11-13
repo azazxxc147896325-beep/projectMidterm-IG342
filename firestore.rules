@@ -1,0 +1,103 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function ownsPost(postId) {
+      return signedIn() && get(/databases/$(database)/documents/posts/$(postId)).data.author_id == request.auth.uid;
+    }
+
+    match /usernames/{username} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && !exists(/databases/$(database)/documents/usernames/$(username));
+      allow update, delete: if false;
+    }
+
+    match /profiles/{userId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.auth.uid == userId
+        && request.resource.data.id == userId;
+      allow update: if signedIn() && request.auth.uid == userId
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.username == resource.data.username;
+      allow delete: if false;
+    }
+
+    match /posts/{postId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.author_id == request.auth.uid
+        && request.resource.data.content is string
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 500;
+      allow update: if signedIn() && (
+        (resource.data.author_id == request.auth.uid
+          && request.resource.data.author_id == resource.data.author_id)
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['like_count'])
+          && request.resource.data.like_count >= 0
+          && (request.resource.data.like_count == resource.data.like_count + 1
+            || request.resource.data.like_count == resource.data.like_count - 1))
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comment_count'])
+          && request.resource.data.comment_count >= 0
+          && (request.resource.data.comment_count == resource.data.comment_count + 1
+            || request.resource.data.comment_count == resource.data.comment_count - 1))
+      );
+      allow delete: if signedIn() && resource.data.author_id == request.auth.uid;
+    }
+
+    match /comments/{commentId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.author_id == request.auth.uid
+        && request.resource.data.content is string
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 300;
+      allow update: if false;
+      allow delete: if signedIn() && (resource.data.author_id == request.auth.uid || ownsPost(resource.data.post_id));
+    }
+
+    match /likes/{likeId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.user_id == request.auth.uid;
+      allow update: if false;
+      allow delete: if signedIn() && (resource.data.user_id == request.auth.uid || ownsPost(resource.data.post_id));
+    }
+
+    match /friend_requests/{requestId} {
+      allow read: if signedIn() && request.auth.uid in resource.data.participants;
+      allow create: if signedIn()
+        && request.resource.data.sender_id == request.auth.uid
+        && request.resource.data.receiver_id != request.auth.uid
+        && request.resource.data.participants.hasAll([request.resource.data.sender_id, request.resource.data.receiver_id])
+        && request.resource.data.status == 'pending';
+      allow update: if signedIn()
+        && request.resource.data.sender_id == resource.data.sender_id
+        && request.resource.data.receiver_id == resource.data.receiver_id
+        && request.resource.data.participants == resource.data.participants
+        && resource.data.status == 'pending'
+        && ((request.auth.uid == resource.data.sender_id && request.resource.data.status == 'cancelled')
+          || (request.auth.uid == resource.data.receiver_id && request.resource.data.status in ['accepted', 'rejected']));
+      allow delete: if false;
+    }
+
+    match /friendships/{friendshipId} {
+      allow read: if signedIn() && (resource.data.user_id == request.auth.uid || resource.data.friend_id == request.auth.uid);
+      allow create: if signedIn()
+        && (request.resource.data.user_id == request.auth.uid || request.resource.data.friend_id == request.auth.uid)
+        && getAfter(/databases/$(database)/documents/friend_requests/$(request.resource.data.request_id)).data.status == 'accepted';
+      allow update, delete: if false;
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn() && resource.data.recipient_id == request.auth.uid;
+      allow create: if signedIn()
+        && request.resource.data.actor_id == request.auth.uid
+        && request.resource.data.recipient_id != request.auth.uid
+        && request.resource.data.type in ['like', 'comment', 'friend_request', 'friend_accepted'];
+      allow update: if signedIn() && resource.data.recipient_id == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_read']);
+      allow delete: if signedIn()
+        && (resource.data.actor_id == request.auth.uid || resource.data.recipient_id == request.auth.uid);
+    }
+  }
+}

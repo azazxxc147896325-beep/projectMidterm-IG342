@@ -1,98 +1,51 @@
-import React from "react";
-import { Routes, Route, NavLink, Link } from "react-router-dom";
-import MainPage from "./pages/MainPage";
-import Home from "./pages/Home";
-import Features from "./pages/Features";
-import About from "./pages/About";
-import Game from "./pages/Game";
-import FloatingBackground from "./components/FloatingBackground";
-import logoImg from "./assets/logo.png";
+import { lazy, Suspense } from "react";
+import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import AppLayout from "./layouts/AppLayout";
+import { useAuth } from "./contexts/AuthContext";
+import LoadingSpinner from "./components/LoadingSpinner";
+import { useTheme } from "./contexts/ThemeContext";
+
+const Login = lazy(() => import("./pages/Login"));
+const Feed = lazy(() => import("./pages/Feed"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Friends = lazy(() => import("./pages/Friends"));
+const Discover = lazy(() => import("./pages/Discover"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const Settings = lazy(() => import("./pages/Settings"));
+const PostDetail = lazy(() => import("./pages/PostDetail"));
+
+function ProtectedRoute() {
+  const { t } = useTheme();
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  if (loading) return <main className="auth-page"><LoadingSpinner label={t("กำลังตรวจสอบการเข้าสู่ระบบ...", "Checking your session...")} /></main>;
+  return user ? <Outlet /> : <Navigate to="/login" replace state={{ from: location.pathname }} />;
+}
+
+function PublicOnlyRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <main className="auth-page"><LoadingSpinner /></main>;
+  return user ? <Navigate to="/feed" replace /> : <Outlet />;
+}
 
 export default function App() {
-  const navLinkStyle = ({ isActive }) =>
-    `px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-      isActive
-        ? "bg-indigo-600 text-white shadow-sm"
-        : "text-gray-600 hover:text-indigo-600 hover:bg-gray-100"
-    }`;
-
+  const { t } = useTheme();
   return (
-    <div className="relative min-h-screen flex flex-col bg-gray-50 font-sans text-gray-800 overflow-x-hidden">
-      {/* Floating Background with Name */}
-      <FloatingBackground />
-
-      {/* Top Menu Header */}
-      <header className="relative z-20 bg-white border-b border-gray-200 sticky top-0 py-3.5 px-4 sm:px-8 shadow-xs">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
-          {/* Logo & Student Info (Clickable back to Main Page) */}
-          <Link
-            to="/"
-            className="flex items-center gap-3 group cursor-pointer text-left"
-            title="คลิกเพื่อกลับหน้าหลัก"
-          >
-            <img
-              src={logoImg}
-              alt="Kittinan Logo"
-              className="h-8 sm:h-9 object-contain group-hover:scale-105 transition-transform"
-            />
-            <div className="hidden sm:block border-l border-gray-200 pl-3">
-              <h1 className="text-xs font-bold text-gray-800 group-hover:text-indigo-600 transition-colors leading-tight">
-                IG342 Project
-              </h1>
-              <p className="text-[11px] text-gray-500">
-                กิตตินันท์ บุญคุ้ม (66112126)
-              </p>
-            </div>
-          </Link>
-
-          {/* Top Menu Navigation */}
-          <nav className="flex items-center space-x-2 bg-gray-100 p-1 rounded-xl border border-gray-200">
-            <NavLink to="/home" className={navLinkStyle}>
-              Home
-            </NavLink>
-
-            <NavLink to="/features" className={navLinkStyle}>
-              Features
-            </NavLink>
-
-            <NavLink to="/about" className={navLinkStyle}>
-              About
-            </NavLink>
-
-            <NavLink to="/game" className={navLinkStyle}>
-              Game
-            </NavLink>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="relative z-10 flex-grow flex items-center justify-center py-8 px-4">
-        <Routes>
-          {/* หน้าหลัก */}
-          <Route index element={<MainPage />} />
-          <Route path="/" element={<MainPage />} />
-          <Route path="/main" element={<MainPage />} />
-
-          {/* 4 หน้าเนื้อหา */}
-          <Route path="/home" element={<Home />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/game" element={<Game />} />
-
-          {/* Fallback ทุกกรณี เพื่อไม่ให้หน้าว่าง */}
-          <Route path="*" element={<MainPage />} />
-        </Routes>
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-20 bg-white border-t border-gray-200 py-4">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          <p className="text-xs text-gray-400 uppercase tracking-wider">
-            กิตตินันท์ บุญคุ้ม • 66112126 • IG342 DPU 2026
-          </p>
-        </div>
-      </footer>
-    </div>
+    <Suspense fallback={<main className="auth-page"><LoadingSpinner label={t("กำลังเปิดหน้า...", "Opening page...")} /></main>}><Routes>
+      <Route element={<PublicOnlyRoute />}><Route path="/login" element={<Login />} /><Route path="/register" element={<Navigate to="/login" replace />} /></Route>
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/post/:postId" element={<PostDetail />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/friends" element={<Friends />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+      </Route>
+      <Route path="*" element={<Navigate to="/feed" replace />} />
+    </Routes></Suspense>
   );
 }

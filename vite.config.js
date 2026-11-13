@@ -11,30 +11,35 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.png', 'pwa-192x192.png', 'pwa-512x512.png'],
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+      },
+      includeAssets: ['quotemate-logo.png', 'quotemate-apple-touch.png', 'quotemate-pwa-192.png', 'quotemate-pwa-512.png'],
       manifest: {
-        name: "IG342 Midterm",
-        short_name: 'FILM',
-        description: 'แอปพลิเคชัน IG342 Kittinan',
-        theme_color: '#4f46e5',
-        background_color: '#f8fafc',
+        name: "QuoteMate",
+        short_name: 'QuoteMate',
+        description: 'พื้นที่แบ่งปันคำพูดดี ๆ กับเพื่อน',
+        theme_color: '#4ea58d',
+        background_color: '#f7faf8',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/projectMidterm-IG342/',
         scope: '/projectMidterm-IG342/',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'quotemate-pwa-192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'quotemate-pwa-512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'quotemate-pwa-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
