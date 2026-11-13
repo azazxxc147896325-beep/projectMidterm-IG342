@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
+import AnimatedBackground from "../components/AnimatedBackground";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { messageFrom } from "../utils/format";
@@ -40,6 +41,7 @@ export default function Login() {
         className="google-auth-button"
         onClick={continueWithGoogle}
         disabled={busy}
+        aria-busy={busy}
       >
         <GoogleLogo />
         {busy
@@ -62,8 +64,7 @@ function GoogleLogo() {
 export function AuthFrame({ title, subtitle, children }) {
   const { t } = useTheme();
   return <main className="auth-page">
-    <div className="auth-decoration auth-decoration-one" />
-    <div className="auth-decoration auth-decoration-two" />
+    <AnimatedBackground />
     <section className="auth-card">
       <Logo />
       <div className="auth-intro"><h1>{title}</h1><p>{subtitle}</p></div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import Avatar from "../components/Avatar";
+import AnimatedBackground from "../components/AnimatedBackground";
 import Icon from "../components/Icon";
 import Logo from "../components/Logo";
 import OnboardingDialog from "../components/OnboardingDialog";
@@ -39,6 +40,7 @@ export default function AppLayout() {
   const completeOnboarding = () => { markOnboardingSeen(); setShowOnboarding(false); };
   return (
     <div className="app-shell">
+      <AnimatedBackground />
       {showOnboarding && <OnboardingDialog onComplete={completeOnboarding}/>} 
       <header className="mobile-header"><Logo /><div className="mobile-header-actions"><NavLink to="/notifications" className="header-action" aria-label={t("การแจ้งเตือน", "Notifications")}><Icon name="bell" />{unread > 0 && <b>{unread}</b>}</NavLink><NavLink to="/settings" className="header-action" aria-label={t("ตั้งค่า", "Settings")}><Icon name="settings" /></NavLink></div></header>
       <aside className="sidebar">
