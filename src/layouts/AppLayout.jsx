@@ -49,7 +49,7 @@ export default function AppLayout() {
         <div className="sidebar-bottom">
           <NavLink to="/settings" className={linkClass}><span className="nav-icon"><Icon name="settings" /></span><span>{t("ตั้งค่า", "Settings")}</span></NavLink>
           <NavLink to="/profile" className="signed-user" aria-label={t("เปิดโปรไฟล์ของฉัน", "Open my profile")}>
-            <div className="signed-user-avatar"><Avatar user={currentUser} size="md" online /></div>
+            <div className="signed-user-avatar"><Avatar user={currentUser} size="md" /></div>
             <div className="signed-user-details"><strong>{currentUser.name}</strong><span>@{currentUser.username}</span></div>
             <Icon name="chevron" size={17} className="signed-user-profile-arrow" />
           </NavLink>

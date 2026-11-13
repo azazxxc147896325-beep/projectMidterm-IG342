@@ -197,3 +197,8 @@ button{touch-action:manipulation}
 @keyframes ambient-drift{from{translate:0 0;rotate:-5deg}to{translate:var(--drift-x) var(--drift-y);rotate:7deg}}
 @keyframes auth-unfold{from{clip-path:inset(0 0 8% 0 round 27px);opacity:.65;transform:translateY(12px)}to{clip-path:inset(0 round 27px);opacity:1;transform:translateY(0)}}
 @media(max-width:560px){.ambient-quote-1{right:2%;top:12%;width:62px;height:62px}.ambient-quote-2{left:5%;bottom:10%}.ambient-quote-3{right:4%;bottom:15%}.ambient-circle{opacity:.7}}
+
+.avatar .presence-dot{position:absolute;top:0;right:0;bottom:auto;width:12px;height:12px;border:2px solid var(--surface);border-radius:50%;z-index:2;background:#8b949e;box-shadow:0 1px 3px #0003}
+.avatar .presence-dot.is-online{background:#27b575}
+.avatar-sm .presence-dot{width:10px;height:10px;top:-1px;right:-1px}
+.avatar-xl .presence-dot{width:18px;height:18px;top:4px;right:4px;border-width:3px}

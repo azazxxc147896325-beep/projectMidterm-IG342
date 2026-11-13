@@ -1,8 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
+import { startPresence } from "../services/presence";
 import * as firebaseAuth from "../services/auth";
 
 const AuthContext = createContext(null);
@@ -17,6 +18,25 @@ export function AuthProvider({ children }) {
   const [authUser, setAuthUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const stopPresence = useRef(null);
+  const presenceUid = authUser && profile ? authUser.uid : null;
+  useEffect(() => {
+    if (!presenceUid) return undefined;
+    const stop = startPresence(presenceUid);
+    stopPresence.current = stop;
+    return () => {
+      stopPresence.current = null;
+      void stop();
+    };
+  }, [presenceUid]);
+
+  const signOut = async () => {
+    const stopped = stopPresence.current?.();
+    // Do not delay sign-out when a device has lost its connection.
+    if (stopped) await Promise.race([stopped, new Promise((resolve) => window.setTimeout(resolve, 1500))]);
+    await firebaseAuth.signOut();
+  };
 
   const refreshProfile = useCallback(async () => {
     if (!auth.currentUser) { setProfile(null); return null; }
@@ -86,7 +106,7 @@ export function AuthProvider({ children }) {
     signIn,
     signUp,
     signInWithGoogle,
-    signOut: firebaseAuth.signOut,
+    signOut,
     refreshProfile,
   }), [session, user, profile, loading, refreshProfile]);
 

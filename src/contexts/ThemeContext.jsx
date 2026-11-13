@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 const ThemeContext = createContext(null);
 
@@ -21,22 +21,40 @@ export function ThemeProvider({ children }) {
     const saved = localStorage.getItem("colorMode");
     return ["light", "dark", "system"].includes(saved) ? saved : "system";
   });
-  useEffect(() => {
+  useLayoutEffect(() => {
     const media = window.matchMedia?.("(prefers-color-scheme: dark)");
     const apply = () => {
-      document.documentElement.dataset.mode = mode === "system" ? (media?.matches ? "dark" : "light") : mode;
+      const root = document.documentElement;
+      const resolvedMode = mode === "system" ? (media?.matches ? "dark" : "light") : mode;
+      root.dataset.theme = theme;
+      root.dataset.mode = resolvedMode;
+      const tokens = getComputedStyle(root);
+      const color = tokens.getPropertyValue(resolvedMode === "dark" ? "--bg" : "--accent-faint").trim()
+        || (resolvedMode === "dark" ? "#101419" : "#f7faf8");
+      const setMeta = (name, content) => {
+        let meta = document.querySelector(`meta[name="${name}"]`);
+        if (!meta) {
+          meta = document.createElement("meta");
+          meta.name = name;
+          document.head.appendChild(meta);
+        }
+        meta.content = content;
+      };
+      setMeta("theme-color", color);
+      setMeta("color-scheme", resolvedMode);
+      setMeta("apple-mobile-web-app-status-bar-style", resolvedMode === "dark" ? "black" : "default");
+      localStorage.setItem("themeId", theme);
       localStorage.setItem("colorMode", mode);
     };
     apply();
     media?.addEventListener("change", apply);
     return () => media?.removeEventListener("change", apply);
-  }, [mode]);
+  }, [mode, theme]);
   const [font, setFont] = useState(() => localStorage.getItem("fontId") || "Noto Sans Thai");
   const [language, setLanguage] = useState(() => {
     const saved = localStorage.getItem("language");
     return languageIds.has(saved) ? saved : "th";
   });
-  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem("themeId", theme); }, [theme]);
   useEffect(() => { document.documentElement.style.setProperty("--app-font", `'${font}', sans-serif`); localStorage.setItem("fontId", font); }, [font]);
   useEffect(() => { document.documentElement.lang = language; localStorage.setItem("language", language); }, [language]);
   useEffect(() => {

@@ -21,7 +21,7 @@ export default defineConfig({
         name: "QuoteMate",
         short_name: 'QuoteMate',
         description: 'พื้นที่แบ่งปันคำพูดดี ๆ กับเพื่อน',
-        theme_color: '#4ea58d',
+        theme_color: '#f7faf8',
         background_color: '#f7faf8',
         display: 'standalone',
         orientation: 'portrait',
